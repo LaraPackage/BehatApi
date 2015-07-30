@@ -8,6 +8,11 @@
             "email": "andy@awendt.com"
         }
     ],
+    "autoload": {
+      "psr-4": {
+        "LaraPackage\\BehatApi\\": "src/"
+      }
+    },
     "minimum-stability": "stable",
     "require": {
         "behat/behat": "~3.0",

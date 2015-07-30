@@ -6,9 +6,12 @@ use Behat\Behat\Context\Context;
 use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\MinkExtension\Context\MinkContext;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use OutOfBoundsException;
+use OutOfRangeException;
+use PHPUnit_Framework_Assert as PhpUnit;
 
 /**
  * Defines application features from the specific context.
@@ -45,7 +48,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     /**
      * The Guzzle HTTP Response.
      *
-     * @var Psr\Http\Message\ResponseInterface
+     * @var \Psr\Http\Message\ResponseInterface
      */
     protected $response;
 
@@ -128,7 +131,8 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
         } else {
             $bodyOutput = 'Output is '.$contentType.', which is not JSON and is therefore scary. Run the request manually.';
         }
-        assertSame((int)$statusCode, (int)$this->getResponse()->getStatusCode(), $bodyOutput);
+
+        PhpUnit::assertSame((int)$statusCode, (int)$this->getResponse()->getStatusCode(), $bodyOutput);
     }
 
     /**
@@ -227,7 +231,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
         $lastIds = (array)array_pop($ids);
 
         foreach ($lastIds as $id) {
-            assertTrue(!in_array($id, $responseIds));
+            PhpUnit::assertTrue(!in_array($id, $responseIds));
         }
     }
 
@@ -243,7 +247,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
         $responseIds = $this->getIdsFromNestedArray($responsePayload);
         sort($requestIds);
         sort($responseIds);
-        assertSame($requestIds, $responseIds);
+        PhpUnit::assertSame($requestIds, $responseIds);
     }
 
     /**
@@ -258,7 +262,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
         $responseIds = $this->getIdsFromNestedArray($responsePayload);
 
         foreach ($requestIds as $id) {
-            assertTrue(in_array($id, $responseIds));
+            PhpUnit::assertTrue(in_array($id, $responseIds));
         }
     }
 
@@ -311,7 +315,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
      */
     public function itIsEmpty()
     {
-        assertEmpty($this->getScopePayload());
+        PhpUnit::assertEmpty($this->getScopePayload());
     }
 
     /**
@@ -366,7 +370,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     {
         $payload = $this->getScopePayload();
 
-        assertCount(
+        PhpUnit::assertCount(
             $count,
             $this->arrayGet($payload, $property),
             "Asserting the [$property] property contains [$count] items: ".json_encode($payload)
@@ -381,7 +385,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
         $payload = $this->getScopePayload();
         $actualValue = $this->arrayGet($payload, $property);
 
-        assertEquals(
+        PhpUnit::assertEquals(
             $actualValue,
             $expectedValue,
             "Asserting the [$property] property in current scope equals [$expectedValue]: ".json_encode($payload)
@@ -403,10 +407,10 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
         );
 
         if (is_object($payload)) {
-            assertTrue(array_key_exists($property, get_object_vars($payload)), $message);
+            PhpUnit::assertTrue(array_key_exists($property, get_object_vars($payload)), $message);
 
         } else {
-            assertTrue(array_key_exists($property, $payload), $message);
+            PhpUnit::assertTrue(array_key_exists($property, $payload), $message);
         }
     }
 
@@ -417,7 +421,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     {
         $payload = $this->getScopePayload();
 
-        assertTrue(
+        PhpUnit::assertTrue(
             gettype($this->arrayGet($payload, $property)) == 'boolean',
             "Asserting the [$property] property in current scope [{$this->scope}] is a boolean."
         );
@@ -437,7 +441,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
 
         $this->thePropertyIsABoolean($property);
 
-        assertSame(
+        PhpUnit::assertSame(
             $actualValue,
             $expectedValue == 'true',
             "Asserting the [$property] property in current scope [{$this->scope}] is a boolean equalling [$expectedValue]."
@@ -451,7 +455,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     {
         $payload = $this->getScopePayload();
 
-        assertTrue(
+        PhpUnit::assertTrue(
             is_float($this->arrayGet($payload, $property)),
             "Asserting the [$property] property in current scope [{$this->scope}] is a float: ".json_encode($payload)
         );
@@ -463,7 +467,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     public function thePropertyIsAString($property)
     {
         $payload = $this->getScopePayload();
-        assertTrue(
+        PhpUnit::assertTrue(
             is_string($this->arrayGet($payload, $property)),
             "Asserting the [$property] property in current scope [{$this->scope}] is a string: ".json_encode($payload)
         );
@@ -480,7 +484,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
 
         $actualValue = $this->arrayGet($payload, $property);
 
-        assertSame(
+        PhpUnit::assertSame(
             $actualValue,
             $expectedValue,
             "Asserting the [$property] property in current scope [{$this->scope}] is a string equalling [$expectedValue]."
@@ -511,7 +515,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
 
         $actualValue = $this->arrayGet($payload, $property);
 
-        assertTrue(
+        PhpUnit::assertTrue(
             is_array($actualValue),
             "Asserting the [$property] property in current scope [{$this->scope}] is an array: ".json_encode($payload)
         );
@@ -525,7 +529,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
         $payload = $this->getScopePayload();
         $scopePayload = $this->arrayGet($payload, $property);
 
-        assertTrue(
+        PhpUnit::assertTrue(
             is_array($scopePayload) and $scopePayload === [],
             "Asserting the [$property] property in current scope [{$this->scope}] is an empty array: ".json_encode($payload)
         );
@@ -538,7 +542,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     {
         $payload = $this->getScopePayload();
 
-        assertTrue(
+        PhpUnit::assertTrue(
             is_int($this->arrayGet($payload, $property)),
             "Asserting the [$property] property in current scope [{$this->scope}] is an integer: ".json_encode($payload)
         );
@@ -554,7 +558,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
 
         $this->thePropertyIsAnInteger($property);
 
-        assertSame(
+        PhpUnit::assertSame(
             $actualValue,
             (int)$expectedValue,
             "Asserting the [$property] property in current scope [{$this->scope}] is an integer equalling [$expectedValue]."
@@ -586,7 +590,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
 
         $actualValue = $this->arrayGet($payload, $property);
 
-        assertTrue(
+        PhpUnit::assertTrue(
             is_object($actualValue),
             "Asserting the [$property] property in current scope [{$this->scope}] is an object: ".json_encode($payload)
         );
@@ -602,7 +606,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
 
         $valid = explode("\n", (string)$options);
 
-        assertTrue(
+        PhpUnit::assertTrue(
             in_array($actualValue, $valid),
             sprintf(
                 "Asserting the [%s] property in current scope [{$this->scope}] is in array of valid options [%s].",
@@ -619,7 +623,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     {
         $payload = $this->getScopePayload();
 
-        assertTrue(
+        PhpUnit::assertTrue(
             is_null($this->arrayGet($payload, $property)),
             "Asserting the [$property] property in current scope [{$this->scope}] is an null: ".json_encode($payload)
         );
@@ -630,8 +634,8 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
      */
     public function theResponseIsJson()
     {
-        assertSame(strtolower($this->response->getHeader('Content-Type')[0]), 'application/vnd.wps_api.v4+json');
-        isJson($this->response->getBody());
+        PhpUnit::assertSame(strtolower($this->response->getHeader('Content-Type')[0]), 'application/vnd.wps_api.v4+json');
+        PhpUnit::isJson($this->response->getBody());
     }
 
     /**
@@ -692,7 +696,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
         $propertyValue = $this->arrayGet($payload, $property);
         $result = $typeTest($propertyValue);
 
-        assertTrue($result, $message($property, $payload));
+        PhpUnit::assertTrue($result, $message($property, $payload));
     }
 
     /**
@@ -702,8 +706,8 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     protected function compareArrays(array $needle, array $haystack)
     {
         foreach ($needle as $key => $value) {
-            assertArrayHasKey($key, $haystack);
-            assertTrue(in_array($value, $haystack));
+            PhpUnit::assertArrayHasKey($key, $haystack);
+            PhpUnit::assertTrue(in_array($value, $haystack));
         }
     }
 
@@ -766,12 +770,13 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     /**
      * Checks the response exists and returns it.
      *
-     * @return  Psr\Http\Message\ResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws \Exception
      */
     protected function getResponse()
     {
         if (!$this->response) {
-            throw new Exception("You must first make a request to check a response.");
+            throw new \Exception("You must first make a request to check a response.");
         }
 
         return $this->response;

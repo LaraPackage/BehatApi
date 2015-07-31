@@ -89,6 +89,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
      */
     protected $query;
 
+    protected $guzzleConfig = [];
 
     /**
      * Initializes context.
@@ -96,16 +97,18 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
      *
      * @param array $parameters context parameters (set them up through behat.yml)
      */
-    public function __construct($baseUrl = null, $guzzle = [])
+    public function __construct($baseUri = null, $guzzle = [])
     {
-        $config = (!empty($guzzle)) ? $guzzle : [];
-        if (null === $baseUrl) {
+        $config = [];
+        if (null === $baseUri) {
             $config['base_uri'] = 'http://'.getenv('NOVUSSITEAPINGINX_PORT_80_TCP_ADDR');
         } else {
-            $config['base_uri'] = $baseUrl;
+            $config['base_uri'] = $baseUri;
         }
 
-        $this->client = new Client($config);
+        $this->guzzleConfig = array_merge($config, $guzzle);
+
+        $this->client = new Client();
         $this->resourceParser = \App::make(\PrometheusApi\Utilities\Contracts\Uri\Parser::class);
         $this->testingHelper = \App::make(\LaraPackage\RandomId\Helper::class);
     }
@@ -804,6 +807,14 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
         return $this->arrayGet($this->responsePayload, $this->scope);
     }
 
+    /**
+     * @param $options
+     */
+    protected function guzzleRequestConfig(array $options)
+    {
+        return array_merge($options, $this->guzzleConfig);
+    }
+
     protected function makeRequest()
     {
         $method = strtolower($this->httpMethod);
@@ -817,13 +828,13 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
                 case 'POST':
                     $this->response = $this
                         ->client
-                        ->$method($resource, ['headers' => $this->headers, 'body' => $this->requestPayload]);
+                        ->$method($resource, $this->guzzleRequestConfig(['headers' => $this->headers, 'body' => $this->requestPayload]));
                     break;
 
                 default:
                     $this->response = $this
                         ->client
-                        ->$method($resource, ['headers' => $this->headers]);
+                        ->$method($resource, $this->guzzleRequestConfig(['headers' => $this->headers]));
             }
         } catch (BadResponseException $e) {
 

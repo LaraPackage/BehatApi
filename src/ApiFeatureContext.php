@@ -101,7 +101,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     {
         $config = [];
         if (null === $baseUri) {
-            $config['base_uri'] = 'http://'.getenv('NOVUSSITEAPINGINX_PORT_80_TCP_ADDR');
+            $config['base_uri'] = 'http://'.getenv('END_TO_END_TESTS_URI');
         } else {
             $config['base_uri'] = $baseUri;
         }

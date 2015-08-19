@@ -191,11 +191,9 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     /**
      * @When /^I request "(GET|PUT|POST|PATCH|DELETE) ([^"]*)"$/
      */
-    public function iRequest($httpMethod, $resource)
+    public function iRequest($httpMethod, $uri)
     {
-        $this->httpMethod = $httpMethod;
-        $this->resource = $resource;
-        $this->query = $this->resourceParser->getQuery($resource);
+        $this->setResourceAndQuery($httpMethod, $uri);
         $this->putRandomIdsInResource();
         $this->makeRequest();
     }
@@ -203,10 +201,9 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     /**
      * @When /^I request "(GET) ([^"]*)" without the previous ending id$/
      */
-    public function iRequestWithoutThePreviousEndingId($httpMethod, $resource)
+    public function iRequestWithoutThePreviousEndingId($httpMethod, $uri)
     {
-        $this->resource = $resource;
-        $this->httpMethod = $httpMethod;
+        $this->setResourceAndQuery($httpMethod, $uri);
 
         $ids = $this->ids;
         array_pop($ids);
@@ -715,6 +712,18 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     }
 
     /**
+     * @return string
+     */
+    protected function compileUri()
+    {
+        if ($this->query) {
+            return $this->resource.'?'.$this->query;
+        }
+
+        return $this->resource;
+    }
+
+    /**
      * Return the response payload from the current response.
      *
      * @return  mixed
@@ -819,7 +828,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     {
         $method = strtolower($this->httpMethod);
 
-        $resource = $this->resource.'/'.$this->query;
+        $uri = $this->compileUri();
 
         try {
             switch ($this->httpMethod) {
@@ -828,13 +837,13 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
                 case 'POST':
                     $this->response = $this
                         ->client
-                        ->$method($resource, $this->guzzleRequestConfig(['headers' => $this->headers, 'body' => $this->requestPayload]));
+                        ->$method($uri, $this->guzzleRequestConfig(['headers' => $this->headers, 'body' => $this->requestPayload]));
                     break;
 
                 default:
                     $this->response = $this
                         ->client
-                        ->$method($resource, $this->guzzleRequestConfig(['headers' => $this->headers]));
+                        ->$method($uri, $this->guzzleRequestConfig(['headers' => $this->headers]));
             }
         } catch (BadResponseException $e) {
 
@@ -882,5 +891,16 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
             $ids = (null === $ids) ? $this->ids : $ids;
             $this->resource = $this->testingHelper->putIdsInUri($this->resource, $ids, $idPlaceholder);
         }
+    }
+
+    /**
+     * @param $httpMethod
+     * @param $uri
+     */
+    protected function setResourceAndQuery($httpMethod, $uri)
+    {
+        $this->httpMethod = $httpMethod;
+        $this->resource = $this->resourceParser->getResource($uri);
+        $this->query = $this->resourceParser->getQuery($uri);
     }
 }

@@ -1027,16 +1027,16 @@
         },
         {
             "name": "larapackage/randomid",
-            "version": "v0.0.1",
+            "version": "v0.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/LaraPackage/RandomId.git",
-                "reference": "d351cb649b361352a10a0ed583c7c352ac553bd3"
+                "reference": "5dbe2fa471a800b3f2ab9c8bbeb5fcc44f966637"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/LaraPackage/RandomId/zipball/d351cb649b361352a10a0ed583c7c352ac553bd3",
-                "reference": "d351cb649b361352a10a0ed583c7c352ac553bd3",
+                "url": "https://api.github.com/repos/LaraPackage/RandomId/zipball/5dbe2fa471a800b3f2ab9c8bbeb5fcc44f966637",
+                "reference": "5dbe2fa471a800b3f2ab9c8bbeb5fcc44f966637",
                 "shasum": ""
             },
             "require": {
@@ -1064,7 +1064,7 @@
                 }
             ],
             "description": "A package to help retrieve random ids for testing and other purposes",
-            "time": "2015-07-29 19:23:32"
+            "time": "2015-08-19 23:41:22"
         },
         {
             "name": "laravel/framework",

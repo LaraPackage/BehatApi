@@ -91,6 +91,8 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
 
     protected $guzzleConfig = [];
 
+    protected $data = [];
+
     /**
      * Initializes context.
      * Every scenario gets it's own context object.
@@ -199,6 +201,17 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     }
 
     /**
+     * @When /^I request "(GET|PUT|POST|PATCH|DELETE) ([^"]*)" and the query needs random data from "([^"]*)"$/
+     */
+    public function iRequestAndTheQueryNeedsRandomData($httpMethod, $resource)
+    {
+        $this->setResourceAndQuery($httpMethod, $resource);
+        $this->putRandomIdsInResource();
+        $this->putRandomDataInQuery();
+        $this->makeRequest();
+    }
+
+    /**
      * @When /^I request "(GET) ([^"]*)" without the previous ending id$/
      */
     public function iRequestWithoutThePreviousEndingId($httpMethod, $uri)
@@ -209,6 +222,14 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
         array_pop($ids);
         $this->putRandomIdsInResource($ids, '{id}');
         $this->makeRequest();
+    }
+
+    /**
+     * @Then /^I save the data$/
+     */
+    public function iSaveTheData()
+    {
+        $this->data = $this->getScopePayload();
     }
 
     /**
@@ -324,9 +345,22 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     public function pickARandomItemFromTheProperty($scope)
     {
         $this->maybeSetSubScope($scope);
-
         $randomArrayKey = array_rand($this->getScopePayload());
         $this->addToCurrentScope($randomArrayKey);
+    }
+
+    /**
+     * @Then /^pick the first item from the "([^"]*)" property$/
+     */
+    public function pickTheFirstItemFromTheProperty($scope)
+    {
+        $this->maybeSetSubScope($scope);
+
+        $payload = $this->getScopePayload();
+        reset($payload);
+        $firstKey = key($payload);
+
+        $this->addToCurrentScope($firstKey);
     }
 
     /**
@@ -390,6 +424,19 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
             $expectedValue,
             "Asserting the [$property] property in current scope equals [$expectedValue]: ".json_encode($payload)
         );
+    }
+
+    /**
+     * @Given /^the "([^"]*)" property equals the random "([^"]*)"$/
+     */
+    public function thePropertyEqualsTheRandom($property, $randomKey)
+    {
+        $payload = $this->getScopePayload();
+
+        $actual = $this->arrayGet($payload, $property);
+        $expected = $this->getRandomDataForKey($randomKey);
+
+        PhpUnit::assertSame($actual, $expected);
     }
 
     /**
@@ -779,6 +826,15 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
         return $ids;
     }
 
+    protected function getRandomDataForKey($key)
+    {
+        if (!array_key_exists($key, $this->data)) {
+            return null;
+        }
+
+        return $this->data[$key];
+    }
+
     /**
      * Checks the response exists and returns it.
      *
@@ -870,6 +926,11 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
         } else {
             $this->scope = $scope;
         }
+    }
+
+    protected function putRandomDataInQuery()
+    {
+        $this->query = $this->testingHelper->putDataInQueryString($this->query, $this->data);
     }
 
     /**

@@ -201,7 +201,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
     }
 
     /**
-     * @When /^I request "(GET|PUT|POST|PATCH|DELETE) ([^"]*)" and the query needs random data from "([^"]*)"$/
+     * @When /^I request "(GET|PUT|POST|PATCH|DELETE) ([^"]*)" and the query needs random data$/
      */
     public function iRequestAndTheQueryNeedsRandomData($httpMethod, $resource)
     {

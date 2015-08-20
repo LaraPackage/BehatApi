@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b519593c26a8317a31e1b7468d14aa77",
+    "hash": "96d61b45055f2cae9749bc6f9518e7c6",
     "packages": [
         {
             "name": "behat/behat",
@@ -985,16 +985,16 @@
         },
         {
             "name": "larapackage/api",
-            "version": "v0.0.6",
+            "version": "v0.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/LaraPackage/API.git",
-                "reference": "6061af40143bf67b6dbefd2178c4846975b334f6"
+                "reference": "9bfb37b311e2708f14741bfa27891bff044288a6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/LaraPackage/API/zipball/6061af40143bf67b6dbefd2178c4846975b334f6",
-                "reference": "6061af40143bf67b6dbefd2178c4846975b334f6",
+                "url": "https://api.github.com/repos/LaraPackage/API/zipball/9bfb37b311e2708f14741bfa27891bff044288a6",
+                "reference": "9bfb37b311e2708f14741bfa27891bff044288a6",
                 "shasum": ""
             },
             "require": {
@@ -1023,7 +1023,7 @@
                 }
             ],
             "description": "A Laravel API Abstraction",
-            "time": "2015-07-29 23:10:05"
+            "time": "2015-08-20 17:44:24"
         },
         {
             "name": "larapackage/randomid",

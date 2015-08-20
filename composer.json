@@ -20,7 +20,7 @@
         "behat/mink-extension": "~2.0",
         "laracasts/behat-laravel-extension": "~1.0",
         "larapackage/randomid": "~0.0.1",
-        "larapackage/api": "~0.0.1",
+        "larapackage/api": "~0.0",
         "guzzlehttp/guzzle": "~6.0",
         "laravel/framework": "~5.1",
         "phpunit/phpunit": "~4.0"

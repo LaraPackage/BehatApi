@@ -431,7 +431,7 @@ class ApiFeatureContext extends MinkContext implements Context, SnippetAccepting
      */
     public function thePropertyEqualsTheRandom($property, $randomKey)
     {
-        $payload = $this->getScopePayload();
+        $payload = $this->getScopePayload(true);
 
         $actual = $this->arrayGet($payload, $property);
         $expected = $this->getRandomDataForKey($randomKey);
